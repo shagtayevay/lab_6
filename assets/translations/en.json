@@ -1,0 +1,20 @@
+{
+  "title": "Registration",
+  "name": "Full Name",
+  "full_name_hint": "What is your name?",
+  "full_name_error": "Please enter your name",
+  "phone": "Phone Number",
+  "phone_hint": "Where can we call you?",
+  "phont_hint_error": "Enter a valid 10-digit number",
+  "email": "Email Address",
+  "email_hint": "Where can we email you?",
+  "email_hint_error": "Enter a valid email address",
+  "password": "Password",
+  "password_hint": "Enter your password",
+  "password_hint_error": "Password must be at least 8 characters",    
+  "confirm_password": "Confirm Password",
+  "confirm_password_hint": "Re-enter your password",
+  "confirm_password_error": "Passwords do not match",
+  "submit": "Submit Form",
+  "back": "Back"
+}

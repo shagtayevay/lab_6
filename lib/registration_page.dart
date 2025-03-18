@@ -1,207 +1,246 @@
 import 'package:flutter/material.dart';
 
-class RegistrationPage extends StatefulWidget {
-  const RegistrationPage({super.key});
+void main() {
+  runApp(MaterialApp(
+    home: RegistrationPage(),
+  ));
+}
 
+class RegistrationPage extends StatefulWidget {
   @override
   _RegistrationPageState createState() => _RegistrationPageState();
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
-  final _formKey = GlobalKey<FormState>(); // Ключ для управления формой
-  final _nameController = TextEditingController(); // Контроллер для имени
-  final _emailController = TextEditingController(); // Контроллер для email
-  final _phoneController = TextEditingController(); // Контроллер для телефона
-  final _passwordController = TextEditingController(); // Контроллер для пароля
-  final _confirmPasswordController = TextEditingController(); // Контроллер для подтверждения пароля
+  final _formKey = GlobalKey<FormState>();
+  bool _hidePass = true;
 
-  // FocusNode для управления фокусом
-  final _nameFocusNode = FocusNode();
-  final _emailFocusNode = FocusNode();
-  final _phoneFocusNode = FocusNode();
-  final _passwordFocusNode = FocusNode();
-  final _confirmPasswordFocusNode = FocusNode();
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
-  bool _hidePassword = true; // Состояние для скрытия/показа пароля
+  final _nameFocus = FocusNode();
+  final _phoneFocus = FocusNode();
+  final _emailFocus = FocusNode();
+  final _passFocus = FocusNode();
+  final _confirmPassFocus = FocusNode();
 
   @override
   void dispose() {
-    // Освобождаем ресурсы
     _nameController.dispose();
-    _emailController.dispose();
     _phoneController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _nameFocusNode.dispose();
-    _emailFocusNode.dispose();
-    _phoneFocusNode.dispose();
-    _passwordFocusNode.dispose();
-    _confirmPasswordFocusNode.dispose();
+
+    _nameFocus.dispose();
+    _phoneFocus.dispose();
+    _emailFocus.dispose();
+    _passFocus.dispose();
+    _confirmPassFocus.dispose();
+
     super.dispose();
+  }
+
+  void _fieldFocusChange(
+      BuildContext context, FocusNode currentFocus, FocusNode nextFocus) {
+    currentFocus.unfocus();
+    FocusScope.of(context).requestFocus(nextFocus);
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => UserInfoPage(
+            name: _nameController.text,
+            phone: _phoneController.text,
+            email: _emailController.text,
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Form is not valid! Please review and correct.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required FocusNode nextFocus,
+    required String label,
+    required String hint,
+    required IconData prefixIcon,
+    required TextInputType keyboardType,
+    required String? Function(String?) validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      focusNode: focusNode,
+      textInputAction: TextInputAction.next,
+      onFieldSubmitted: (_) => _fieldFocusChange(context, focusNode, nextFocus),
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        prefixIcon: Icon(prefixIcon),
+        suffixIcon: GestureDetector(
+          onTap: () => controller.clear(),
+          child: Icon(Icons.delete_outline, color: Colors.red),
+        ),
+        border: OutlineInputBorder(),
+      ),
+      keyboardType: keyboardType,
+      validator: validator,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Registration Page'),
+        title: Text('Register Form'),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: EdgeInsets.all(16.0),
+          children: [
+            _buildTextField(
+              controller: _nameController,
+              focusNode: _nameFocus,
+              nextFocus: _phoneFocus,
+              label: 'Full Name',
+              hint: 'What do people call you?',
+              prefixIcon: Icons.person,
+              keyboardType: TextInputType.name,
+              validator: (value) =>
+                  value!.isEmpty ? 'Please enter your name' : null,
+            ),
+            SizedBox(height: 16.0),
+            _buildTextField(
+              controller: _phoneController,
+              focusNode: _phoneFocus,
+              nextFocus: _emailFocus,
+              label: 'Phone Number',
+              hint: 'Where can we reach you?',
+              prefixIcon: Icons.call,
+              keyboardType: TextInputType.phone,
+              validator: (value) => value!.length != 12
+                  ? 'Enter a valid 12-digit phone number'
+                  : null,
+            ),
+            SizedBox(height: 16.0),
+            _buildTextField(
+              controller: _emailController,
+              focusNode: _emailFocus,
+              nextFocus: _passFocus,
+              label: 'Email Address',
+              hint: 'Where can we email you?',
+              prefixIcon: Icons.email,
+              keyboardType: TextInputType.emailAddress,
+              validator: (value) =>
+                  !value!.contains('@') ? 'Enter a valid email' : null,
+            ),
+            SizedBox(height: 16.0),
+            TextFormField(
+              controller: _passwordController,
+              focusNode: _passFocus,
+              textInputAction: TextInputAction.next,
+              onFieldSubmitted: (_) =>
+                  _fieldFocusChange(context, _passFocus, _confirmPassFocus),
+              obscureText: _hidePass,
+              decoration: InputDecoration(
+                labelText: 'Password',
+                hintText: 'Enter your password',
+                suffixIcon: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _hidePass = !_hidePass;
+                    });
+                  },
+                  child:
+                      Icon(_hidePass ? Icons.visibility : Icons.visibility_off),
+                ),
+                prefixIcon: Icon(Icons.security),
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) => value!.length < 8
+                  ? 'Password must be at least 8 characters'
+                  : null,
+            ),
+            SizedBox(height: 16.0),
+            TextFormField(
+              controller: _confirmPasswordController,
+              focusNode: _confirmPassFocus,
+              textInputAction: TextInputAction.done,
+              obscureText: _hidePass,
+              decoration: InputDecoration(
+                labelText: 'Confirm Password',
+                hintText: 'Re-enter your password',
+                prefixIcon: Icon(Icons.security),
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) => value != _passwordController.text
+                  ? 'Passwords do not match'
+                  : null,
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: _submitForm,
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              child: Text(
+                'Submit form',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Страница с информацией о пользователе
+class UserInfoPage extends StatelessWidget {
+  final String name;
+  final String phone;
+  final String email;
+
+  UserInfoPage({required this.name, required this.phone, required this.email});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('User Info')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Поле для ввода имени
-              TextFormField(
-                controller: _nameController,
-                focusNode: _nameFocusNode,
-                decoration: const InputDecoration(
-                  labelText: 'Full Name',
-                  prefixIcon: Icon(Icons.person),
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your full name';
-                  }
-                  return null;
-                },
-                onFieldSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(_emailFocusNode);
-                },
-              ),
-              const SizedBox(height: 16.0),
-
-              // Поле для ввода email
-              TextFormField(
-                controller: _emailController,
-                focusNode: _emailFocusNode,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: Icon(Icons.email),
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
-                onFieldSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(_phoneFocusNode);
-                },
-              ),
-              const SizedBox(height: 16.0),
-
-              // Поле для ввода номера телефона
-              TextFormField(
-                controller: _phoneController,
-                focusNode: _phoneFocusNode,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number',
-                  prefixIcon: Icon(Icons.phone),
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.phone,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly, // Только цифры
-                ],
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your phone number';
-                  }
-                  if (value.length != 10) {
-                    return 'Phone number must be 10 digits';
-                  }
-                  return null;
-                },
-                onFieldSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(_passwordFocusNode);
-                },
-              ),
-              const SizedBox(height: 16.0),
-
-              // Поле для ввода пароля
-              TextFormField(
-                controller: _passwordController,
-                focusNode: _passwordFocusNode,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: const Icon(Icons.lock),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _hidePassword ? Icons.visibility : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _hidePassword = !_hidePassword;
-                      });
-                    },
-                  ),
-                  border: const OutlineInputBorder(),
-                ),
-                obscureText: _hidePassword,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
-                onFieldSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(_confirmPasswordFocusNode);
-                },
-              ),
-              const SizedBox(height: 16.0),
-
-              // Поле для подтверждения пароля
-              TextFormField(
-                controller: _confirmPasswordController,
-                focusNode: _confirmPasswordFocusNode,
-                decoration: const InputDecoration(
-                  labelText: 'Confirm Password',
-                  prefixIcon: Icon(Icons.lock),
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: _hidePassword,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please confirm your password';
-                  }
-                  if (value != _passwordController.text) {
-                    return 'Passwords do not match';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24.0),
-
-              // Кнопка регистрации
+              Text('Welcome, $name!',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              SizedBox(height: 10),
+              Text('Phone: $phone', style: TextStyle(fontSize: 18)),
+              SizedBox(height: 10),
+              Text('Email: $email', style: TextStyle(fontSize: 18)),
+              SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // Если форма валидна, переходим на UserInfoPage
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => UserInfoPage(
-                          name: _nameController.text,
-                          email: _emailController.text,
-                          phone: _phoneController.text,
-                        ),
-                      ),
-                    );
-                  }
+                  Navigator.pop(context);
                 },
-                child: const Text('Register'),
+                child: Text('Back'),
               ),
             ],
           ),
