@@ -3,22 +3,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:lab_6/generated/codegen_loader.g.dart';
 import 'package:lab_6/registration_page.dart';
 
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await EasyLocalization.ensureInitialized();
-  
+void main() {
   runApp(
     EasyLocalization(
+      supportedLocales: [Locale('en'), Locale('ru'), Locale('kk')],
+      path: 'assets/translations', // Путь к файлам переводов
+      fallbackLocale: Locale('en'),
       child: MyApp(),
-      supportedLocales: [
-        Locale('en'), 
-        Locale('ru'), 
-        Locale('kk'),
-      ],
-      path: 'assets/translations', // Путь к файлам перевода
-      fallbackLocale: Locale('en'), // Локаль по умолчанию
-      assetLoader: CodegenLoader(),
     ),
   );
 }
@@ -30,7 +21,7 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
-      title: "Flutter Demo",
+      title: "lab_6",
       theme: ThemeData(
         primaryColor: Colors.blue,
       ),
@@ -38,6 +29,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-
-

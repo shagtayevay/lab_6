@@ -31,31 +31,28 @@ class UserInfoPage extends StatelessWidget {
             ),
             Text(name, style: TextStyle(fontSize: 18)),
             SizedBox(height: 10),
-            
             Text(
               'Email Address:',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Text(email, style: TextStyle(fontSize: 18)),
             SizedBox(height: 10),
-            
             Text(
               'Phone Number:',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Text(phone, style: TextStyle(fontSize: 18)),
             SizedBox(height: 10),
-
             Text(
               'Password:',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            Text('*' * password.length, style: TextStyle(fontSize: 18, color: Colors.red)),
+            Text('*' * password.length,
+                style: TextStyle(fontSize: 18, color: Colors.red)),
             SizedBox(height: 20),
-
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context); // Возвращает на предыдущий экран
+                Navigator.pop(context);
               },
               child: Text('Back'),
             ),

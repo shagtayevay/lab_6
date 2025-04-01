@@ -1,9 +1,17 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MaterialApp(
-    home: RegistrationPage(),
-  ));
+  runApp(
+    EasyLocalization(
+      supportedLocales: [Locale('en'), Locale('ru'), Locale('kk')],
+      path: 'assets/translations', // Путь к файлам переводов
+      fallbackLocale: Locale('en'),
+      child: MaterialApp(
+        home: RegistrationPage(),
+      ),
+    ),
+  );
 }
 
 class RegistrationPage extends StatefulWidget {
@@ -90,8 +98,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
       textInputAction: TextInputAction.next,
       onFieldSubmitted: (_) => _fieldFocusChange(context, focusNode, nextFocus),
       decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
+        labelText: label.tr(),
+        hintText: hint.tr(),
         prefixIcon: Icon(prefixIcon),
         suffixIcon: GestureDetector(
           onTap: () => controller.clear(),
@@ -108,8 +116,29 @@ class _RegistrationPageState extends State<RegistrationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Register Form'),
+        title: Text('Register Form'.tr()),
         centerTitle: true,
+        actions: [
+          PopupMenuButton<Locale>(
+            onSelected: (Locale locale) {
+              context.setLocale(locale);
+            },
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem(
+                value: Locale('en'),
+                child: Text('language'.tr() + ' (English)'),
+              ),
+              PopupMenuItem(
+                value: Locale('ru'),
+                child: Text('language'.tr() + ' (Русский)'),
+              ),
+              PopupMenuItem(
+                value: Locale('kk'),
+                child: Text('language'.tr() + ' (Қазақша)'),
+              ),
+            ],
+          ),
+        ],
       ),
       body: Form(
         key: _formKey,
@@ -120,7 +149,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               controller: _nameController,
               focusNode: _nameFocus,
               nextFocus: _phoneFocus,
-              label: 'Full Name',
+              label: 'Full Name'.tr(),
               hint: 'What do people call you?',
               prefixIcon: Icons.person,
               keyboardType: TextInputType.name,
@@ -132,12 +161,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
               controller: _phoneController,
               focusNode: _phoneFocus,
               nextFocus: _emailFocus,
-              label: 'Phone Number',
+              label: 'Phone Number'.tr(),
               hint: 'Where can we reach you?',
               prefixIcon: Icons.call,
               keyboardType: TextInputType.phone,
               validator: (value) => value!.length != 12
-                  ? 'Enter a valid 12-digit phone number'
+                  ? 'Enter a valid 12-digit phone number'.tr()
                   : null,
             ),
             SizedBox(height: 16.0),
@@ -145,7 +174,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               controller: _emailController,
               focusNode: _emailFocus,
               nextFocus: _passFocus,
-              label: 'Email Address',
+              label: 'Email Address'.tr(),
               hint: 'Where can we email you?',
               prefixIcon: Icons.email,
               keyboardType: TextInputType.emailAddress,
@@ -161,8 +190,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   _fieldFocusChange(context, _passFocus, _confirmPassFocus),
               obscureText: _hidePass,
               decoration: InputDecoration(
-                labelText: 'Password',
-                hintText: 'Enter your password',
+                labelText: 'Password'.tr(),
+                hintText: 'Enter your password'.tr(),
                 suffixIcon: GestureDetector(
                   onTap: () {
                     setState(() {
@@ -176,7 +205,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 border: OutlineInputBorder(),
               ),
               validator: (value) => value!.length < 8
-                  ? 'Password must be at least 8 characters'
+                  ? 'Password must be at least 8 characters'.tr()
                   : null,
             ),
             SizedBox(height: 16.0),
@@ -186,13 +215,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
               textInputAction: TextInputAction.done,
               obscureText: _hidePass,
               decoration: InputDecoration(
-                labelText: 'Confirm Password',
-                hintText: 'Re-enter your password',
+                labelText: 'Confirm Password'.tr(),
+                hintText: 'Re-enter your password'.tr(),
                 prefixIcon: Icon(Icons.security),
                 border: OutlineInputBorder(),
               ),
               validator: (value) => value != _passwordController.text
-                  ? 'Passwords do not match'
+                  ? 'Passwords do not match'.tr()
                   : null,
             ),
             SizedBox(height: 16.0),
@@ -200,7 +229,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               onPressed: _submitForm,
               style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
               child: Text(
-                'Submit form',
+                'Submit form'.tr(),
                 style: TextStyle(color: Colors.white),
               ),
             ),
@@ -211,7 +240,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 }
 
-// Страница с информацией о пользователе
 class UserInfoPage extends StatelessWidget {
   final String name;
   final String phone;
@@ -222,25 +250,25 @@ class UserInfoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('User Info')),
+      appBar: AppBar(title: Text('User Info'.tr())),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Welcome, $name!',
+              Text('Welcome, $name!'.tr(),
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
               SizedBox(height: 10),
-              Text('Phone: $phone', style: TextStyle(fontSize: 18)),
+              Text('Phone: $phone'.tr(), style: TextStyle(fontSize: 18)),
               SizedBox(height: 10),
-              Text('Email: $email', style: TextStyle(fontSize: 18)),
+              Text('Email: $email'.tr(), style: TextStyle(fontSize: 18)),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text('Back'),
+                child: Text('Back'.tr()),
               ),
             ],
           ),
